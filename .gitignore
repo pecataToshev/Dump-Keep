@@ -1,0 +1,14 @@
+.DS_Store
+
+# Local environment files — never commit secrets
+.env
+*.env
+!.env.example
+
+# age keys
+*key*.txt
+# dumped data
+*\.dump*
+
+# Go build artifacts
+dump-keep

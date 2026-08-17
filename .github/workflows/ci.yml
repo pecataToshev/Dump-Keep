@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    container: golang:1.26-alpine
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Run Tests
+        run: go test -v ./...
+
+  build-and-push:
+    name: Build and Push Docker Image
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Write build info
+        shell: sh
+        run: |
+          cat << EOF > internal/buildinfo/buildinfo.go
+          package buildinfo
+
+          const (
+          	Commit    = "$(echo ${{ github.sha }} | cut -c1-7)"
+          	BuildTime = "$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          	Source    = "${{ github.ref_name }}"
+          )
+          EOF
+
+          echo "Generated buildinfo.go:"
+          echo ----------------------------
+          cat internal/buildinfo/buildinfo.go
+          echo ----------------------------
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/pecatatoshev/dump-keep:latest
+            ghcr.io/pecatatoshev/dump-keep:${{ github.sha }}

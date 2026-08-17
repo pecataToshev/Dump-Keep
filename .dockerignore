@@ -1,0 +1,15 @@
+.github/
+
+.gitignore
+.dockerignore
+
+LICENSE
+README.md
+CONTRIBUTING.md
+SECURITY.md
+
+docs/
+examples/
+
+.env*
+skip.example.txt

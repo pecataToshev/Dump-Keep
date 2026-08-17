@@ -1,0 +1,13 @@
+# Databases to skip from backup (one per line, # = comment).
+# Edit this file with your own list.
+#
+# System databases are filtered by the non-template query automatically,
+# but listed here for clarity.
+
+postgres
+template0
+template1
+
+# Add your own databases to skip below, e.g.:
+# my_test_db
+# staging_db

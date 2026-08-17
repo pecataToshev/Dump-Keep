@@ -1,0 +1,13 @@
+# Databases skipped from backup (one per line).
+# Lines starting with # are comments. Blank lines are ignored.
+#
+# System databases (postgres, template0, template1) are filtered by the
+# non-template query, but listed here for clarity.
+
+postgres
+template0
+template1
+
+# Add your own databases to skip below, e.g.:
+# my_test_db
+# staging_db
