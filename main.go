@@ -41,7 +41,10 @@ func main() {
 	}
 
 	notifier := buildNotifier(cfg)
-	slog.Info("databases skipped from backup", "skip_list", cfg.SkipList)
+	slog.Info("configuration loaded",
+		"storage_backend", cfg.StorageBackend,
+		"retention", cfg.Retention,
+		"skip_list", cfg.SkipList)
 
 	pinger := healthcheck.New(cfg.HealthcheckURL)
 	pinger.Start()

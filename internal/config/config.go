@@ -106,12 +106,11 @@ func Load() (Config, error) {
 
 	// Parse retention: "none" disables pruning, unset uses defaults,
 	// otherwise parse positional "daily,weekly,monthly" durations.
-	retentionRaw := cfg.Retention
-	if retentionRaw == "" {
-		retentionRaw = defaultRetention
+	if cfg.Retention == "" {
+		cfg.Retention = defaultRetention
 	}
-	if retentionRaw != "none" {
-		retentionMap, err := ParseRetention(retentionRaw)
+	if cfg.Retention != "none" {
+		retentionMap, err := ParseRetention(cfg.Retention)
 		if err != nil {
 			return cfg, fmt.Errorf("parse RETENTION: %w", err)
 		}
