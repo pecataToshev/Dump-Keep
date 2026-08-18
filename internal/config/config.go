@@ -70,6 +70,7 @@ type Config struct {
 	HealthcheckURL    string
 	DiscordWebhookURL string
 	SlackWebhookURL   string
+	NotifyTiers       []string
 }
 
 // Load reads all environment variables, loads the skip list (if configured),
@@ -98,6 +99,7 @@ func Load() (Config, error) {
 		HealthcheckURL:    os.Getenv("HEALTHCHECK_URL"),
 		DiscordWebhookURL: os.Getenv("DISCORD_WEBHOOK_URL"),
 		SlackWebhookURL:   os.Getenv("SLACK_WEBHOOK_URL"),
+		NotifyTiers:       parseCSV(os.Getenv("NOTIFY_TIERS")),
 	}
 
 	if cfg.GDriveFolderID == "" {
@@ -115,6 +117,21 @@ func Load() (Config, error) {
 			return cfg, fmt.Errorf("parse RETENTION: %w", err)
 		}
 		cfg.RetentionMap = retentionMap
+	}
+
+	// Notify tiers: which backup tiers trigger a success notification.
+	// Default: weekly,monthly. Set to "daily,weekly,monthly" to notify on every run.
+	// Set to "none" to disable success notifications entirely.
+	if len(cfg.NotifyTiers) == 0 {
+		cfg.NotifyTiers = []string{TierWeekly, TierMonthly}
+	} else if len(cfg.NotifyTiers) == 1 && cfg.NotifyTiers[0] == "none" {
+		cfg.NotifyTiers = nil
+	} else {
+		for _, tier := range cfg.NotifyTiers {
+			if !ValidTier(tier) {
+				return cfg, fmt.Errorf("NOTIFY_TIERS: unknown tier %q (use daily, weekly, monthly, or none)", tier)
+			}
+		}
 	}
 
 	// Build skip list from SKIP_DATABASES env var and/or SKIP_DATABASES_FILE_PATH.

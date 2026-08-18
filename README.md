@@ -125,14 +125,15 @@ See [docs/gdrive-setup.md](./docs/gdrive-setup.md) for setup instructions.
 
 ### Optional
 
-| Variable                   | Description                                                                                                 |
-| -------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `SKIP_DATABASES`           | Comma-separated database names to skip                                                                      |
-| `SKIP_DATABASES_FILE_PATH` | Path to a skip list file (one per line, `#` = comment). Merged with `SKIP_DATABASES`                        |
-| `RETENTION`                | Retention durations as `daily,weekly,monthly` (e.g. `7d,4w,24m`). `none` disables pruning. Unset = defaults |
-| `HEALTHCHECK_URL`          | healthchecks.io ping URL                                                                                    |
-| `DISCORD_WEBHOOK_URL`      | Discord webhook for failure/heartbeat notifications                                                         |
-| `SLACK_WEBHOOK_URL`        | Slack webhook for failure/heartbeat notifications                                                           |
+| Variable                   | Description                                                                                                  |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `SKIP_DATABASES`           | Comma-separated database names to skip                                                                       |
+| `SKIP_DATABASES_FILE_PATH` | Path to a skip list file (one per line, `#` = comment). Merged with `SKIP_DATABASES`                         |
+| `RETENTION`                | Retention durations as `daily,weekly,monthly` (e.g. `7d,4w,24m`). `none` disables pruning. Unset = defaults  |
+| `HEALTHCHECK_URL`          | healthchecks.io ping URL                                                                                     |
+| `DISCORD_WEBHOOK_URL`      | Discord webhook for failure/heartbeat notifications                                                          |
+| `SLACK_WEBHOOK_URL`        | Slack webhook for failure/heartbeat notifications                                                            |
+| `NOTIFY_TIERS`             | Tiers that trigger success notifications: `daily,weekly,monthly`. `none` disables. Default: `weekly,monthly` |
 
 ## Restoring
 

@@ -44,6 +44,7 @@ func main() {
 	slog.Info("configuration loaded",
 		"storage_backend", cfg.StorageBackend,
 		"retention", cfg.Retention,
+		"notify_tiers", cfg.NotifyTiers,
 		"skip_list", cfg.SkipList)
 
 	pinger := healthcheck.New(cfg.HealthcheckURL)
@@ -65,14 +66,17 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Weekly/monthly heartbeat: quiet enough, but proves backups are alive.
-	if sum.Tier != config.TierDaily {
-		msg := fmt.Sprintf("✅ **dump-keep backup `%s` done** — %d databases: %s",
-			sum.Folder, len(sum.Databases), strings.Join(sum.Databases, ", "))
-		if len(sum.Skipped) > 0 {
-			msg += fmt.Sprintf("\n⊘ skipped: %s", strings.Join(sum.Skipped, ", "))
+	// Success notification on configured tiers (default: weekly, monthly).
+	for _, tier := range cfg.NotifyTiers {
+		if sum.Tier == tier {
+			msg := fmt.Sprintf("✅ **dump-keep backup `%s` done** — %d databases: %s",
+				sum.Folder, len(sum.Databases), strings.Join(sum.Databases, ", "))
+			if len(sum.Skipped) > 0 {
+				msg += fmt.Sprintf("\n⊘ skipped: %s", strings.Join(sum.Skipped, ", "))
+			}
+			send(notifier, msg)
+			break
 		}
-		send(notifier, msg)
 	}
 
 	pinger.Success()
