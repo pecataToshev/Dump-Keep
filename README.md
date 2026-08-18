@@ -133,6 +133,7 @@ See [docs/gdrive-setup.md](./docs/gdrive-setup.md) for setup instructions.
 | `HEALTHCHECK_URL`          | healthchecks.io ping URL                                                                                     |
 | `DISCORD_WEBHOOK_URL`      | Discord webhook for failure/heartbeat notifications                                                          |
 | `SLACK_WEBHOOK_URL`        | Slack webhook for failure/heartbeat notifications                                                            |
+| `WEBHOOK_URL`              | Generic webhook (sends `{"text": "<message>"}`). Works with ntfy.sh, Gotify, etc.                            |
 | `NOTIFY_TIERS`             | Tiers that trigger success notifications: `daily,weekly,monthly`. `none` disables. Default: `weekly,monthly` |
 
 ## Restoring

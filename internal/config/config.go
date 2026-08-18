@@ -70,6 +70,7 @@ type Config struct {
 	HealthcheckURL    string
 	DiscordWebhookURL string
 	SlackWebhookURL   string
+	WebhookURL        string
 	NotifyTiers       []string
 }
 
@@ -99,6 +100,7 @@ func Load() (Config, error) {
 		HealthcheckURL:    os.Getenv("HEALTHCHECK_URL"),
 		DiscordWebhookURL: os.Getenv("DISCORD_WEBHOOK_URL"),
 		SlackWebhookURL:   os.Getenv("SLACK_WEBHOOK_URL"),
+		WebhookURL:        os.Getenv("WEBHOOK_URL"),
 		NotifyTiers:       parseCSV(os.Getenv("NOTIFY_TIERS")),
 	}
 

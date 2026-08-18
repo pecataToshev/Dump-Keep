@@ -92,6 +92,9 @@ func buildNotifier(cfg config.Config) notify.Notifier {
 	if cfg.SlackWebhookURL != "" {
 		notifiers = append(notifiers, notify.NewSlack(cfg.SlackWebhookURL))
 	}
+	if cfg.WebhookURL != "" {
+		notifiers = append(notifiers, notify.NewWebhook(cfg.WebhookURL))
+	}
 	if len(notifiers) == 0 {
 		return notify.Noop{}
 	}
