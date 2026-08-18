@@ -45,10 +45,10 @@ func main() {
 	slog.Info("configuration loaded",
 		"storage_backend", cfg.StorageBackend,
 		"retention", cfg.Retention,
-		"notify_tiers", cfg.NotifyTiers,
-		"notifiers", notifier.Types(),
+		"notify_tiers", strings.Join(cfg.NotifyTiers, ","),
+		"notifiers", strings.Join(notifier.Types(), ","),
 		"healthcheck", cfg.HealthcheckURL != "",
-		"skip_list", cfg.SkipList)
+		"skip_list", strings.Join(cfg.SkipList, ","))
 
 	pinger := healthcheck.New(cfg.HealthcheckURL)
 	pinger.Start()
