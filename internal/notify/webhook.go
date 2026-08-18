@@ -20,6 +20,8 @@ func NewWebhook(url string) *Webhook {
 	return &Webhook{url: url}
 }
 
+func (*Webhook) Type() string { return "webhook" }
+
 // Notify posts the message to the webhook. Content is redacted and
 // truncated to a reasonable limit.
 func (w *Webhook) Notify(message string) error {

@@ -17,6 +17,8 @@ func NewDiscord(webhookURL string) *Discord {
 	return &Discord{webhookURL: webhookURL}
 }
 
+func (*Discord) Type() string { return "discord" }
+
 // Notify posts the message to the channel. Content is redacted and
 // truncated to Discord's message limit.
 func (d *Discord) Notify(message string) error {

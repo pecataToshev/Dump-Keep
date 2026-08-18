@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"slices"
 	"strings"
 
 	"github.com/pecataToshev/dump-keep/internal/backup"
@@ -45,6 +46,8 @@ func main() {
 		"storage_backend", cfg.StorageBackend,
 		"retention", cfg.Retention,
 		"notify_tiers", cfg.NotifyTiers,
+		"notifiers", notifier.Types(),
+		"healthcheck", cfg.HealthcheckURL != "",
 		"skip_list", cfg.SkipList)
 
 	pinger := healthcheck.New(cfg.HealthcheckURL)
@@ -67,16 +70,13 @@ func main() {
 	}
 
 	// Success notification on configured tiers (default: weekly, monthly).
-	for _, tier := range cfg.NotifyTiers {
-		if sum.Tier == tier {
-			msg := fmt.Sprintf("✅ **dump-keep backup `%s` done** — %d databases: %s",
-				sum.Folder, len(sum.Databases), strings.Join(sum.Databases, ", "))
-			if len(sum.Skipped) > 0 {
-				msg += fmt.Sprintf("\n⊘ skipped: %s", strings.Join(sum.Skipped, ", "))
-			}
-			send(notifier, msg)
-			break
+	if slices.Contains(cfg.NotifyTiers, sum.Tier) {
+		msg := fmt.Sprintf("✅ **dump-keep backup `%s` done** — %d databases: %s",
+			sum.Folder, len(sum.Databases), strings.Join(sum.Databases, ", "))
+		if len(sum.Skipped) > 0 {
+			msg += fmt.Sprintf("\n⊘ skipped: %s", strings.Join(sum.Skipped, ", "))
 		}
+		send(notifier, msg)
 	}
 
 	pinger.Success()
@@ -84,24 +84,22 @@ func main() {
 }
 
 // buildNotifier creates a composite notifier from all configured channels.
-func buildNotifier(cfg config.Config) notify.Notifier {
-	var notifiers []notify.Notifier
+// Always returns FanOut; with no channels configured it's a no-op.
+func buildNotifier(cfg config.Config) notify.FanOut {
+	fanout := notify.NewFanOut()
 	if cfg.DiscordWebhookURL != "" {
-		notifiers = append(notifiers, notify.NewDiscord(cfg.DiscordWebhookURL))
+		fanout.Add(notify.NewDiscord(cfg.DiscordWebhookURL))
 	}
 	if cfg.SlackWebhookURL != "" {
-		notifiers = append(notifiers, notify.NewSlack(cfg.SlackWebhookURL))
+		fanout.Add(notify.NewSlack(cfg.SlackWebhookURL))
 	}
 	if cfg.WebhookURL != "" {
-		notifiers = append(notifiers, notify.NewWebhook(cfg.WebhookURL))
+		fanout.Add(notify.NewWebhook(cfg.WebhookURL))
 	}
-	if len(notifiers) == 0 {
-		return notify.Noop{}
-	}
-	return notify.NewMulti(notifiers...)
+	return fanout
 }
 
-func send(n notify.Notifier, message string) {
+func send(n notify.FanOut, message string) {
 	if err := n.Notify(message); err != nil {
 		slog.Error("notification failed", "error", err)
 	}

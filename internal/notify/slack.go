@@ -17,6 +17,8 @@ func NewSlack(webhookURL string) *Slack {
 	return &Slack{webhookURL: webhookURL}
 }
 
+func (*Slack) Type() string { return "slack" }
+
 // Notify posts the message to the Slack channel. Content is redacted and
 // truncated to Slack's text limit.
 func (s *Slack) Notify(message string) error {

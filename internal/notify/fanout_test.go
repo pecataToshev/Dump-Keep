@@ -17,17 +17,21 @@ func (s *stubNotifier) Notify(message string) error {
 	return s.err
 }
 
-func TestMulti_NoNotifiers(t *testing.T) {
-	m := NewMulti()
+func (*stubNotifier) Type() string { return "stub" }
+
+func TestFanOut_NoNotifiers(t *testing.T) {
+	m := NewFanOut()
 	if err := m.Notify("hello"); err != nil {
-		t.Errorf("empty Multi should return nil, got %v", err)
+		t.Errorf("empty FanOut should return nil, got %v", err)
 	}
 }
 
-func TestMulti_FanOut(t *testing.T) {
+func TestFanOut_FanOut(t *testing.T) {
 	a := &stubNotifier{}
 	b := &stubNotifier{}
-	m := NewMulti(a, b)
+	m := NewFanOut()
+	m.Add(a)
+	m.Add(b)
 
 	if err := m.Notify("test message"); err != nil {
 		t.Fatalf("Notify failed: %v", err)
@@ -44,10 +48,12 @@ func TestMulti_FanOut(t *testing.T) {
 	}
 }
 
-func TestMulti_PartialFailure(t *testing.T) {
+func TestFanOut_PartialFailure(t *testing.T) {
 	good := &stubNotifier{}
 	bad := &stubNotifier{err: errors.New("webhook down")}
-	m := NewMulti(good, bad)
+	m := NewFanOut()
+	m.Add(good)
+	m.Add(bad)
 
 	err := m.Notify("test")
 	if err == nil {
@@ -64,10 +70,12 @@ func TestMulti_PartialFailure(t *testing.T) {
 	}
 }
 
-func TestMulti_AllFail(t *testing.T) {
+func TestFanOut_AllFail(t *testing.T) {
 	a := &stubNotifier{err: errors.New("error A")}
 	b := &stubNotifier{err: errors.New("error B")}
-	m := NewMulti(a, b)
+	m := NewFanOut()
+	m.Add(a)
+	m.Add(b)
 
 	err := m.Notify("test")
 	if err == nil {
@@ -75,9 +83,12 @@ func TestMulti_AllFail(t *testing.T) {
 	}
 }
 
-func TestMulti_FiltersNil(t *testing.T) {
+func TestFanOut_IgnoresNil(t *testing.T) {
 	good := &stubNotifier{}
-	m := NewMulti(nil, good, nil)
+	m := NewFanOut()
+	m.Add(nil)
+	m.Add(good)
+	m.Add(nil)
 
 	if err := m.Notify("test"); err != nil {
 		t.Fatalf("Notify failed: %v", err)
@@ -87,9 +98,9 @@ func TestMulti_FiltersNil(t *testing.T) {
 	}
 }
 
-func TestNoop(t *testing.T) {
-	n := Noop{}
-	if err := n.Notify("anything"); err != nil {
-		t.Errorf("Noop should never error, got %v", err)
+func TestFanOut_EmptyTypes(t *testing.T) {
+	m := NewFanOut()
+	if types := m.Types(); len(types) != 1 || types[0] != "none" {
+		t.Errorf("empty FanOut Types() = %v, want [none]", types)
 	}
 }
