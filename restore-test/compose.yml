@@ -1,0 +1,8 @@
+services:
+  restore-test:
+    build: .
+    container_name: restore-test
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+    volumes:
+      - ./.data:/data:ro

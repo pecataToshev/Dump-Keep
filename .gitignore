@@ -10,5 +10,8 @@
 # dumped data
 *\.dump*
 
+# .data
+**/.data/
+
 # Go build artifacts
 dump-keep

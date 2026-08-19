@@ -148,6 +148,11 @@ age -d -i private-key.txt 2026-08-17-globals.sql.age | psql -h host -U postgres
 age -d -i private-key.txt 2026-08-17-mydb.dump.age | pg_restore -h host -U postgres -d mydb --clean --if-exists
 ```
 
+To validate that a backup actually restores (recommended quarterly), use
+the throwaway-container helper in [restore-test/](./restore-test)
+— it decrypts, restores into a fresh PostgreSQL 18 container, and checks
+that data is present, all without touching your production database.
+
 ## Examples
 
 - [examples/railway/](./examples/railway) — Deploy on Railway using the pre-built image (simplest)
